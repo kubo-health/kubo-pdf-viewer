@@ -1,5 +1,6 @@
 {
-  "name": "pdf.js",
+  "name": "kubo-pdf-viewer",
+  "version": "1.0.0",
   "devDependencies": {
     "@babel/core": "^7.18.5",
     "@babel/plugin-transform-modules-commonjs": "^7.18.2",
@@ -41,6 +42,7 @@
     "merge-stream": "^2.0.0",
     "mkdirp": "^1.0.4",
     "needle": "^3.1.0",
+    "npm-version": "~1.1.0",
     "postcss": "^8.4.14",
     "postcss-dir-pseudo-class": "^6.0.4",
     "postcss-logical": "^5.0.4",
@@ -67,7 +69,14 @@
     "yargs": "^17.5.1"
   },
   "scripts": {
-    "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js"
+    "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js",
+    "bump-version": "npm version --patch --no-git-tag-version",
+    "prebuild:all": "mkdir dist && mkdir dist/legacy",
+    "build:all": "gulp generic && gulp generic-legacy",
+    "postbuild:all": "cp -R build/generic/* dist && cp -R build/generic-legacy/* dist/legacy",
+    "release:beta": "./bin/release-beta.sh",
+    "release:staging": "./bin/release-staging.sh",
+    "release:prod": "./bin/release-prod.sh"
   },
   "repository": {
     "type": "git",

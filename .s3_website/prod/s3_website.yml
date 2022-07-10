@@ -1,0 +1,19 @@
+s3_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+s3_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+s3_bucket: us-east-1-kubo-pdf-viewer-prod
+cloudfront_distribution_id: E2CKAM8M2JL3ZV
+
+site: ../../build
+
+index_document: index.html
+error_document: index.html
+
+cache_control:
+  "static/css/*": public, max-age=604800
+  "static/js/*": public, max-age=604800
+  "favicon.ico": public, max-age=604800
+  "*": no-cache, no-store
+
+gzip: true
+
+ignore_on_server: _DELETE_NOTHING_ON_THE_S3_BUCKET_

@@ -1,9 +1,9 @@
-name: Kubo PDF Viewer Deploy - Staging
+name: Kubo PDF Viewer Deploy - Prod
 
 on:
   push:
     tags:
-      - "v*.*.*_staging"
+      - "v*.*.*_prod"
 
 env:
   SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
@@ -37,11 +37,11 @@ jobs:
 
       - name: Copy files to S3
         run: |
-          aws s3 sync dist/ s3://us-east-1-kubo-pdf-viewer-staging
+          aws s3 sync dist/ s3://us-east-1-kubo-pdf-viewer-prod
 
       - name: Clear the CloudFront Cache
         run: |
-          aws cloudfront create-invalidation --distribution-id E1441TC0LOPWSN --paths '/*'
+          aws cloudfront create-invalidation --distribution-id E2CKAM8M2JL3ZV --paths '/*'
 
   slack-workflow-status:
     if: always()
