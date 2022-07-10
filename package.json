@@ -70,7 +70,7 @@
   },
   "scripts": {
     "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js",
-    "bump-version": "npm version --patch --no-git-tag-version",
+    "bump-version": "yarn version --patch --no-git-tag-version",
     "prebuild:all": "mkdir dist && mkdir dist/legacy",
     "build:all": "gulp generic && gulp generic-legacy",
     "postbuild:all": "cp -R build/generic/* dist && cp -R build/generic-legacy/* dist/legacy",
