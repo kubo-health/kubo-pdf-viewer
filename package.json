@@ -73,7 +73,7 @@
     "bump-version": "yarn version --patch --no-git-tag-version",
     "prebuild:all": "mkdir dist && mkdir dist/legacy",
     "build:all": "gulp generic && gulp generic-legacy",
-    "postbuild:all": "cp -R build/generic/* dist && cp -R build/generic-legacy/* dist/legacy",
+    "postbuild:all": "mv build/generic/web/viewer.html build/generic/web/index.html && mv build/generic-legacy/web/viewer.html build/generic-legacy/web/index.html && cp -R build/generic/build dist && cp -R build/generic/web/* dist && cp -R build/generic/build dist/legacy && cp -R build/generic/web/* dist/legacy",
     "release:beta": "./bin/release-beta.sh",
     "release:staging": "./bin/release-staging.sh",
     "release:prod": "./bin/release-prod.sh"
