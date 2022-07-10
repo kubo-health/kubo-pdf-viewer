@@ -1,0 +1,82 @@
+name: Kubo App Deploy - Staging
+
+on:
+  push:
+    tags:
+      - "v*.*.*_staging"
+
+env:
+  SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+
+jobs:
+  setup-build-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      LEIN_SNAPSHOTS_IN_RELEASE: true
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Prepare java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@3.2
+        with:
+          cli: 1.10.1.693 # Clojure CLI based on tools.deps
+          lein: 2.9.3     # or use 'latest' to always provision latest version of leiningen
+
+      - name: Install mustache
+        run: sudo npm install -g mustache
+
+      - name: Install Saas
+        run: sudo npm install -g sass
+
+      - name: Install CSS Cleaner
+        run: sudo npm install clean-css-cli -g
+
+      - name: Install JS Dependencies
+        run: npm install
+
+      - name: Set env
+        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Build CLJS and SCSS
+        run: ./bin/gha-build.sh --env=staging
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Copy files to S3
+        run: |
+          aws s3 sync resources/public/ s3://us-east-1-kubo-app-staging --exclude 'js/compiled/*' --exclude 'scss/*'
+
+      - name: Clear the CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id E9EL2URHZE3VE --paths '/*'
+
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status
+    needs:
+      - setup-build-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@88ee95b73b4669825883ddf22747966204663e58
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{env.SLACK_WEBHOOK_URL}}
+          include_jobs: true
