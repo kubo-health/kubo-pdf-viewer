@@ -33,7 +33,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Build generic & generic-legacy
-        run: npm build:all
+        run: npm run build:all
 
       - name: Copy files to S3
         run: |
